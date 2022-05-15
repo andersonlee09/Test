@@ -5,7 +5,7 @@ phoneCity = ['成都市', '武汉市', '上海市']
 
 
 def getSheetKeys() -> list:
-    sheet = pd.read_excel(r'./excel/data.xlsx', sheet_name=None)
+    sheet = pd.read_excel(r'./excel/data-new.xlsx', sheet_name=None)
     return list(sheet.keys())
 
 
@@ -72,6 +72,39 @@ def getMinDimensionAndLongitude() -> [float, float]:
             if point[1] < minLongitude:
                 minLongitude = point[1]
     return minDimension, minLongitude
+
+
+def getSumConsumerOrderInformation():
+    costumerInformation = getSheetData('客户信息')
+    costumer = {}
+    for idx, _ in costumerInformation.iterrows():
+        if str(_['坐标']) != 'nan':
+            costumer[_['城市']] = re(_['坐标'])
+    pc, phone = [], []
+    sumConsumerOrderInformation = getSheetData('客户订单总')
+    for idx, _ in sumConsumerOrderInformation.iterrows():
+        try:
+            if 'Phone' in _['产品']:
+                phone.append({
+                    'num': _['数量'],
+                    'city': _['客户'],
+                    'location': costumer[_['客户']]  # 此处为经纬度坐标
+                })
+            else:
+                pc.append({
+                    'num': _['数量'],
+                    'city': _['客户'],
+                    'location': costumer[_['客户']]  # 此处为经纬度坐标
+                })
+        except KeyError as e:
+            print(e)
+    return pc, phone
+
+
+def getAllDeliverCenter():
+    # for idx, _ in getSheetData('Sheet1').iterrows():
+    #     print(_['城市'])
+    return [{'location': (eval(_['坐标'].split(',')[1]), eval(_['坐标'].split(',')[0])), 'city': _['城市']} for idx, _ in getSheetData('Sheet1').iterrows()]
 
 
 if __name__ == '__main__':

@@ -1,9 +1,12 @@
 import math
 
+import matplotlib
 import matplotlib.pyplot as plt
 import readExcel
 from collections import OrderedDict
 
+# 设置字体为楷体
+matplotlib.rcParams['font.sans-serif'] = ['KaiTi']
 # minDimension, minLongitude
 minDimension, minLongitude = 18.25, 75.99
 # one minDimension or minLongitude to some KM
@@ -13,9 +16,11 @@ y = 111.1 / 92 * x
 p_x = -100
 p_y = 280
 # drew map as background picture
+"""
 img = plt.imread(r'./pic/map.png')
 fig, ax = plt.subplots()
 ax.imshow(img, extent=[0, 8000, 0, 6000])
+"""
 PCFactory, phoneFactory, deliveryCenter, costumer = readExcel.getDifferentPointInMap()
 
 
@@ -48,6 +53,7 @@ def getDistanceOfTwoPoint(p1: tuple, p2: tuple) -> float:
 def getMinDistanceOfTwoPoint(point: tuple, targetPoints: list) -> tuple:
     """
     todo search a point from targetPoint to get min distance of point & one target point.
+    :return: return a point
     """
     minDistance = 2 ** 30
     targetPoint = (0, 0)
@@ -59,6 +65,7 @@ def getMinDistanceOfTwoPoint(point: tuple, targetPoints: list) -> tuple:
     return targetPoint
 
 
+"""
 # clear x & y ticks
 plt.xticks([])
 plt.yticks([])
@@ -100,4 +107,52 @@ for _ in PCFactory:
 handles, labels = plt.gca().get_legend_handles_labels()
 by_label = OrderedDict(zip(labels, handles))
 plt.legend(by_label.values(), by_label.keys(), loc='lower right')
+"""
+pc, phone = readExcel.getSumConsumerOrderInformation()
+
+
+# def priceFactory(point):
+def getSumCost():
+    """
+    'num': _['数量'],
+    'city': _['客户'],
+    'location': costumer[_['客户']]  # 此处为经纬度坐标
+    """
+
+    def getOneCost(num, location):
+        deliveryCenterPoint = getMinDistanceOfTwoPoint(location, deliveryCenter)
+        deliveryDistinct = getDistanceOfTwoPoint(location, deliveryCenterPoint)
+        PCFactoryPoint = getMinDistanceOfTwoPoint(deliveryCenterPoint, PCFactory)
+        PCDistinct = getDistanceOfTwoPoint(deliveryCenterPoint, PCFactoryPoint)
+        # print(deliveryDistinct)
+        return num * 3 * (0.3 * deliveryDistinct + 0.1 * PCDistinct)
+
+    cost = 0
+    for _ in phone:
+        cost += getOneCost(_['num'], _['location'])
+    return cost
+
+
+def getCostAfterAddDeliverCenter():
+    res = []
+    costBeforeAddDeliverCenter = getSumCost()  # 63905388293.8472
+    delivery = readExcel.getAllDeliverCenter()
+    for _ in delivery:
+        deliveryCenter.append(_['location'])
+        res.append({'val': costBeforeAddDeliverCenter - getSumCost(), 'city': _['city']})
+        deliveryCenter.pop()
+    return res
+
+
+res = getCostAfterAddDeliverCenter()
+res.sort(key=lambda o: o['val'])
+for _ in res:
+    print(_['city'], int(_['val']) // 10000)
+labels, cost = [], []
+for _ in res:
+    cost.append(int(_['val']) / 10000)
+    labels.append(_['city'])
+plt.xticks(rotation=50)  # 倾斜70度
+plt.bar(range(len(cost)), cost, tick_label=labels)
+
 plt.show()
