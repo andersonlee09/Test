@@ -74,5 +74,9 @@ def getMinDimensionAndLongitude() -> [float, float]:
     return minDimension, minLongitude
 
 
+def func():
+    sumConsumerOrderInformation = getSheetData('客户订单总')
+
+
 if __name__ == '__main__':
     print(getMinDimensionAndLongitude())
