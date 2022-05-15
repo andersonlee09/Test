@@ -16,12 +16,13 @@ y = 111.1 / 92 * x
 p_x = -100
 p_y = 280
 # drew map as background picture
-"""
+
 img = plt.imread(r'./pic/map.png')
 fig, ax = plt.subplots()
 ax.imshow(img, extent=[0, 8000, 0, 6000])
-"""
+
 PCFactory, phoneFactory, deliveryCenter, costumer = readExcel.getDifferentPointInMap()
+deliveryCenter.append((43.826630, 87.616880))
 
 
 # get x ticks value of point
@@ -65,7 +66,7 @@ def getMinDistanceOfTwoPoint(point: tuple, targetPoints: list) -> tuple:
     return targetPoint
 
 
-"""
+
 # clear x & y ticks
 plt.xticks([])
 plt.yticks([])
@@ -107,7 +108,7 @@ for _ in PCFactory:
 handles, labels = plt.gca().get_legend_handles_labels()
 by_label = OrderedDict(zip(labels, handles))
 plt.legend(by_label.values(), by_label.keys(), loc='lower right')
-"""
+
 pc, phone = readExcel.getSumConsumerOrderInformation()
 
 
@@ -144,6 +145,7 @@ def getCostAfterAddDeliverCenter():
     return res
 
 
+"""
 res = getCostAfterAddDeliverCenter()
 res.sort(key=lambda o: o['val'])
 for _ in res:
@@ -154,5 +156,5 @@ for _ in res:
     labels.append(_['city'])
 plt.xticks(rotation=50)  # 倾斜70度
 plt.bar(range(len(cost)), cost, tick_label=labels)
-
+"""
 plt.show()
