@@ -16,13 +16,15 @@ y = 111.1 / 92 * x
 p_x = -100
 p_y = 280
 # drew map as background picture
-
+"""
 img = plt.imread(r'./pic/map.png')
 fig, ax = plt.subplots()
 ax.imshow(img, extent=[0, 8000, 0, 6000])
-
+"""
 PCFactory, phoneFactory, deliveryCenter, costumer = readExcel.getDifferentPointInMap()
-deliveryCenter.append((43.826630, 87.616880))
+
+
+# deliveryCenter.append((43.826630, 87.616880))
 
 
 # get x ticks value of point
@@ -66,7 +68,7 @@ def getMinDistanceOfTwoPoint(point: tuple, targetPoints: list) -> tuple:
     return targetPoint
 
 
-
+"""
 # clear x & y ticks
 plt.xticks([])
 plt.yticks([])
@@ -108,7 +110,7 @@ for _ in PCFactory:
 handles, labels = plt.gca().get_legend_handles_labels()
 by_label = OrderedDict(zip(labels, handles))
 plt.legend(by_label.values(), by_label.keys(), loc='lower right')
-
+"""
 pc, phone = readExcel.getSumConsumerOrderInformation()
 
 
@@ -129,7 +131,7 @@ def getSumCost():
         return num * 3 * (0.3 * deliveryDistinct + 0.1 * PCDistinct)
 
     cost = 0
-    for _ in phone:
+    for _ in pc:
         cost += getOneCost(_['num'], _['location'])
     return cost
 
@@ -145,16 +147,21 @@ def getCostAfterAddDeliverCenter():
     return res
 
 
-"""
 res = getCostAfterAddDeliverCenter()
 res.sort(key=lambda o: o['val'])
 for _ in res:
-    print(_['city'], int(_['val']) // 10000)
+    print(_['city'], int(_['val']) // 10000 - 150)
 labels, cost = [], []
 for _ in res:
-    cost.append(int(_['val']) / 10000)
+    cost.append(int(_['val']) / 10000 - 150)
     labels.append(_['city'])
 plt.xticks(rotation=50)  # 倾斜70度
 plt.bar(range(len(cost)), cost, tick_label=labels)
-"""
+
+costOfPhone = 0
+for _ in phone:
+    phoneFactoryPoint = getMinDistanceOfTwoPoint(_['location'], deliveryCenter)
+    phoneDistinct = getDistanceOfTwoPoint(_['location'], phoneFactoryPoint)
+    costOfPhone += _['num'] * 1 * 0.18 * phoneDistinct
+print(costOfPhone // 10000)
 plt.show()
